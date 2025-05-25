@@ -131,3 +131,11 @@ E:\c#project\uploadyahua\obj\Debug\uploadyahua.pdb
 E:\c#project\uploadyahua\bin\Debug\Hardcodet.Wpf.TaskbarNotification.dll
 E:\c#project\uploadyahua\bin\Debug\Hardcodet.Wpf.TaskbarNotification.pdb
 E:\c#project\uploadyahua\bin\Debug\Hardcodet.Wpf.TaskbarNotification.xml
+E:\c#project\UploadYaHua\obj\Debug\uploadyahua_Content.g.cs
+E:\c#project\UploadYaHua\bin\Debug\System.Data.SQLite.dll
+E:\c#project\UploadYaHua\bin\Debug\x64\SQLite.Interop.dll
+E:\c#project\UploadYaHua\bin\Debug\x86\SQLite.Interop.dll
+E:\c#project\UploadYaHua\bin\Debug\Newtonsoft.Json.dll
+E:\c#project\UploadYaHua\bin\Debug\SqlSugar.dll
+E:\c#project\UploadYaHua\bin\Debug\Newtonsoft.Json.xml
+E:\c#project\UploadYaHua\obj\Debug\GeneratedInternalTypeHelper.g.cs
