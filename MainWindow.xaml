@@ -1,168 +1,395 @@
-﻿<mah:MetroWindow x:Class="uploadyahua.MainWindow"
-        xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
-        xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
-        xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
-        xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
-        xmlns:mah="http://metro.mahapps.com/winfx/xaml/controls"
-        xmlns:tb="http://www.hardcodet.net/taskbar"
-        xmlns:conv="clr-namespace:uploadyahua.Converter"
-        xmlns:vm="clr-namespace:uploadyahua.ViewModel"
-        xmlns:local="clr-namespace:uploadyahua"
-        mc:Ignorable="d"
-        d:DataContext="{d:DesignInstance vm:MainViewModel}"
-        Title="MainWindow" Height="800" Width="1080"
-        Closing="Window_Closing">
+﻿<mah:MetroWindow
+    x:Class="uploadyahua.MainWindow"
+    xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+    xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+    xmlns:conv="clr-namespace:uploadyahua.Converter"
+    xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
+    xmlns:local="clr-namespace:uploadyahua"
+    xmlns:mah="http://metro.mahapps.com/winfx/xaml/controls"
+    xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
+    xmlns:tb="http://www.hardcodet.net/taskbar"
+    xmlns:vm="clr-namespace:uploadyahua.ViewModel"
+    Title="MainWindow"
+    Width="1080"
+    Height="800"
+    d:DataContext="{d:DesignInstance vm:MainViewModel}"
+    Closing="Window_Closing"
+    mc:Ignorable="d">
     <Window.Resources>
-        <conv:ProjectConverter x:Key="ProjectConverter"/>
-        <!-- 定义 DataGrid 单元格样式，设置字体大小为 16 -->
-        <Style x:Key="DataGridCellStyle" TargetType="DataGridCell">
-            <Setter Property="FontSize" Value="16"/>
+        <conv:ProjectConverter x:Key="ProjectConverter" />
+        <Style TargetType="TextBlock">
+            <Setter Property="FontSize" Value="16" />
         </Style>
-        <!-- 定义 DataGridRow 样式，添加底部边框作为分割线 -->
+        <Style x:Key="DataGridCellStyle" TargetType="DataGridCell">
+            <Setter Property="FontSize" Value="16" />
+        </Style>
         <Style x:Key="DataGridRowStyle" TargetType="DataGridRow">
-            <Setter Property="BorderBrush" Value="LightGray"/>
-            <Setter Property="BorderThickness" Value="0,0,0,1"/>
+            <Setter Property="BorderBrush" Value="LightGray" />
+            <Setter Property="BorderThickness" Value="0,0,0,1" />
+        </Style>
+        <!--<Style BasedOn="{StaticResource MahApps.Styles.Button}" TargetType="Button">
+            <Setter Property="FontSize" Value="16" />
+        </Style>-->
+        <Style
+            x:Key="BtnAccent"
+            BasedOn="{StaticResource MahApps.Styles.Button}"
+            TargetType="Button">
+            <Setter Property="Background" Value="{DynamicResource MahApps.Brushes.Accent}" />
+            <Setter Property="Foreground" Value="White" />
+            <Setter Property="FontSize" Value="16" />
         </Style>
     </Window.Resources>
-    <Grid>
+    <Grid Margin="10">
         <Grid.RowDefinitions>
-            <RowDefinition Height="*"/>
-            <RowDefinition Height="1"/>
+            <RowDefinition Height="*" />
+            <RowDefinition Height="1" />
         </Grid.RowDefinitions>
         <Grid Grid.Row="0">
             <Grid.RowDefinitions>
-                <RowDefinition Height="auto"/>
-                <RowDefinition Height="auto"/>
-                <RowDefinition Height="*"/>
+                <RowDefinition Height="auto" />
+                <RowDefinition Height="auto" />
+                <RowDefinition Height="*" />
             </Grid.RowDefinitions>
-            <StackPanel Orientation="Horizontal" Grid.Row="0" Margin="5">
-                <TextBox Text="{Binding Ip}" MinWidth="100"/>
-                <TextBox Text="{Binding Port}" MinWidth="100"/>
-                <Button Content="{Binding OpenBtnText}" d:Content="启动" MinWidth="100" Command="{Binding StartServiceCommand}"/>
-                <TextBlock MinWidth="200" Margin="20,0" Text="{Binding StateMsg}"/>
+            <StackPanel
+                Grid.Row="0"
+                Margin="5"
+                VerticalAlignment="Center"
+                Orientation="Horizontal">
+                <TextBox MinWidth="40" Text="IP:" />
+                <ComboBox
+                    MinWidth="150"
+                    ItemsSource="{Binding AvailableIPs}"
+                    SelectedItem="{Binding Ip}" />
+                <TextBox MinWidth="40" Text="端口:" />
+                <TextBox MinWidth="100" Text="{Binding Port}" />
+                <Button
+                    MinWidth="100"
+                    Margin="20,0,0,0"
+                    d:Content="启动"
+                    Command="{Binding StartServiceCommand}"
+                    Content="{Binding OpenBtnText}" />
+                <TextBlock
+                    MinWidth="200"
+                    Margin="20,0,0,0"
+                    VerticalAlignment="Center"
+                    d:Text="待启动"
+                    Text="{Binding StateMsg}" />
             </StackPanel>
-            <!-- 编辑区，一行放三个编辑字段 -->
-            <StackPanel Orientation="Vertical" Margin="10" Grid.Row="1">
-                <!-- 第一行 -->
-                <StackPanel Orientation="Horizontal" Margin="0,5,0,0">
-                    <StackPanel Orientation="Horizontal" VerticalAlignment="Center">
-                        <TextBlock Text="样本编号:" MinWidth="80" VerticalAlignment="Center" />
-                        <TextBox Text="{Binding SelectedTestResult.SampleNum, Mode=TwoWay}" MinWidth="120" />
+            <!--  编辑区，一行放三个编辑字段  -->
+            <StackPanel
+                Grid.Row="1"
+                Margin="10"
+                Orientation="Vertical">
+                <!--  第一行  -->
+                <StackPanel Margin="0,5,0,0" Orientation="Horizontal">
+                    <StackPanel VerticalAlignment="Center" Orientation="Horizontal">
+                        <TextBlock
+                            MinWidth="80"
+                            VerticalAlignment="Center"
+                            Text="样本编号:" />
+                        <TextBox MinWidth="130" Text="{Binding SelectedTestResult.SampleNum, Mode=TwoWay}" />
                     </StackPanel>
-                    <StackPanel Orientation="Horizontal" Margin="10,0,0,0" VerticalAlignment="Center">
-                        <TextBlock Text="样本类型:" MinWidth="80" VerticalAlignment="Center" />
-                        <TextBox Text="{Binding SelectedTestResult.SampleType, Mode=TwoWay}" MinWidth="120" />
+                    <StackPanel
+                        Margin="10,0,0,0"
+                        VerticalAlignment="Center"
+                        Orientation="Horizontal">
+                        <TextBlock
+                            MinWidth="80"
+                            VerticalAlignment="Center"
+                            Text="样本类型:" />
+                        <TextBox MinWidth="130" Text="{Binding SelectedTestResult.SampleType, Mode=TwoWay}" />
                     </StackPanel>
-                    <StackPanel Orientation="Horizontal" Margin="10,0,0,0" VerticalAlignment="Center">
-                        <TextBlock Text="患者姓名:" MinWidth="80" VerticalAlignment="Center"/>
-                        <TextBox Text="{Binding SelectedTestResult.PatientName, Mode=TwoWay}" MinWidth="120" />
+                    <StackPanel
+                        Margin="10,0,0,0"
+                        VerticalAlignment="Center"
+                        Orientation="Horizontal">
+                        <TextBlock
+                            MinWidth="80"
+                            VerticalAlignment="Center"
+                            Text="患者姓名:" />
+                        <TextBox MinWidth="130" Text="{Binding SelectedTestResult.PatientName, Mode=TwoWay}" />
                     </StackPanel>
-                    <StackPanel Orientation="Horizontal" Margin="10,0,0,0" VerticalAlignment="Center">
-                        <TextBlock Text="病历号:" MinWidth="80" VerticalAlignment="Center" />
-                        <TextBox Text="{Binding SelectedTestResult.PatientNum, Mode=TwoWay}" MinWidth="120" />
-                    </StackPanel>
-                </StackPanel>
-                <!-- 第二行 -->
-                <StackPanel Orientation="Horizontal" Margin="0,5,0,0">
-                    <StackPanel Orientation="Horizontal" VerticalAlignment="Center">
-                        <TextBlock Text="年龄:" MinWidth="80" VerticalAlignment="Center" />
-                        <TextBox Text="{Binding SelectedTestResult.Age, Mode=TwoWay}" MinWidth="120" />
-                    </StackPanel>
-                    <StackPanel Orientation="Horizontal" Margin="10,0,0,0" VerticalAlignment="Center">
-                        <TextBlock Text="性别:" MinWidth="80" VerticalAlignment="Center" />
-                        <TextBox Text="{Binding SelectedTestResult.Gender, Mode=TwoWay}" MinWidth="120" />
-                    </StackPanel>
-                    <StackPanel Orientation="Horizontal" Margin="10,0,0,0" VerticalAlignment="Center">
-                        <TextBlock Text="住院号:" MinWidth="80" VerticalAlignment="Center"/>
-                        <TextBox Text="{Binding SelectedTestResult.AdmissionNum, Mode=TwoWay}" MinWidth="120" />
-                    </StackPanel>
-                    <StackPanel Orientation="Horizontal" Margin="10,0,0,0" VerticalAlignment="Center">
-                        <TextBlock Text="床号:" MinWidth="80" VerticalAlignment="Center" />
-                        <TextBox Text="{Binding SelectedTestResult.BedNum, Mode=TwoWay}" MinWidth="120" />
-                    </StackPanel>
-                </StackPanel>
-                <!-- 第三行 -->
-                <StackPanel Orientation="Horizontal" Margin="0,5,0,0">
-                    <StackPanel Orientation="Horizontal" VerticalAlignment="Center">
-                        <TextBlock Text="科室:" MinWidth="80" VerticalAlignment="Center" />
-                        <TextBox Text="{Binding SelectedTestResult.Office, Mode=TwoWay}" MinWidth="120" />
-                    </StackPanel>
-                    <StackPanel Orientation="Horizontal" Margin="10,0,0,0" VerticalAlignment="Center">
-                        <TextBlock Text="医生姓名:" MinWidth="80" VerticalAlignment="Center" />
-                        <TextBox Text="{Binding SelectedTestResult.DoctorName, Mode=TwoWay}" MinWidth="120" />
-                    </StackPanel>
-                    <StackPanel Orientation="Horizontal" Margin="10,0,0,0" VerticalAlignment="Center">
-                        <TextBlock Text="检验者:" MinWidth="80" VerticalAlignment="Center"/>
-                        <TextBox Text="{Binding SelectedTestResult.Proofer, Mode=TwoWay}" MinWidth="120" />
-                    </StackPanel>
-                    <StackPanel Orientation="Horizontal" Margin="10,0,0,0" VerticalAlignment="Center">
-                        <TextBlock Text="审核者:" MinWidth="80" VerticalAlignment="Center" />
-                        <TextBox Text="{Binding SelectedTestResult.Auditor, Mode=TwoWay}" MinWidth="120" />
+                    <StackPanel
+                        Margin="10,0,0,0"
+                        VerticalAlignment="Center"
+                        Orientation="Horizontal">
+                        <TextBlock
+                            MinWidth="80"
+                            VerticalAlignment="Center"
+                            Text="病历号:" />
+                        <TextBox MinWidth="130" Text="{Binding SelectedTestResult.PatientNum, Mode=TwoWay}" />
                     </StackPanel>
                 </StackPanel>
-                <!-- 第四行 -->
-                <StackPanel Orientation="Horizontal" Margin="0,5,0,0">
-                    <StackPanel Orientation="Horizontal" VerticalAlignment="Center">
-                        <TextBlock Text="医院名字:" MinWidth="80" VerticalAlignment="Center" />
-                        <TextBox Text="{Binding SelectedTestResult.Hospital, Mode=TwoWay}" MinWidth="120" />
+                <!--  第二行  -->
+                <StackPanel Margin="0,5,0,0" Orientation="Horizontal">
+                    <StackPanel VerticalAlignment="Center" Orientation="Horizontal">
+                        <TextBlock
+                            MinWidth="80"
+                            VerticalAlignment="Center"
+                            Text="年龄:" />
+                        <TextBox MinWidth="130" Text="{Binding SelectedTestResult.Age, Mode=TwoWay}" />
                     </StackPanel>
-                    <StackPanel Orientation="Horizontal" Margin="10,0,0,0" VerticalAlignment="Center">
-                        <TextBlock Text="就诊类型:" MinWidth="80" VerticalAlignment="Center" />
-                        <TextBox Text="{Binding SelectedTestResult.VisitType, Mode=TwoWay}" MinWidth="120" />
+                    <StackPanel
+                        Margin="10,0,0,0"
+                        VerticalAlignment="Center"
+                        Orientation="Horizontal">
+                        <TextBlock
+                            MinWidth="80"
+                            VerticalAlignment="Center"
+                            Text="性别:" />
+                        <TextBox MinWidth="130" Text="{Binding SelectedTestResult.Gender, Mode=TwoWay}" />
                     </StackPanel>
-                    <StackPanel Orientation="Horizontal" Margin="10,0,0,0" VerticalAlignment="Center">
-                        <TextBlock Text="送检日期:" MinWidth="80" VerticalAlignment="Center"/>
-                        <TextBox Text="{Binding SelectedTestResult.SubmissionDate, Mode=TwoWay}" MinWidth="120" />
+                    <StackPanel
+                        Margin="10,0,0,0"
+                        VerticalAlignment="Center"
+                        Orientation="Horizontal">
+                        <TextBlock
+                            MinWidth="80"
+                            VerticalAlignment="Center"
+                            Text="住院号:" />
+                        <TextBox MinWidth="130" Text="{Binding SelectedTestResult.AdmissionNum, Mode=TwoWay}" />
                     </StackPanel>
-                    <StackPanel Orientation="Horizontal" Margin="10,0,0,0" VerticalAlignment="Center">
-                        <TextBlock Text="检测日期:" MinWidth="80" VerticalAlignment="Center" />
-                        <TextBox Text="{Binding SelectedTestResult.TestDate, Mode=TwoWay}" MinWidth="120" />
+                    <StackPanel
+                        Margin="10,0,0,0"
+                        VerticalAlignment="Center"
+                        Orientation="Horizontal">
+                        <TextBlock
+                            MinWidth="80"
+                            VerticalAlignment="Center"
+                            Text="床号:" />
+                        <TextBox MinWidth="130" Text="{Binding SelectedTestResult.BedNum, Mode=TwoWay}" />
                     </StackPanel>
                 </StackPanel>
-                <StackPanel Orientation="Horizontal" Margin="0,10,0,0">
-                    <Button Content="保存信息" MinWidth="100" Command="{Binding SaveInfoCommand}"/>
-                    <Button Content="打印报告" Margin="10,0,0,0" MinWidth="100" Command="{Binding PrintReportCommand}"/>
+                <!--  第三行  -->
+                <StackPanel Margin="0,5,0,0" Orientation="Horizontal">
+                    <StackPanel VerticalAlignment="Center" Orientation="Horizontal">
+                        <TextBlock
+                            MinWidth="80"
+                            VerticalAlignment="Center"
+                            Text="科室:" />
+                        <TextBox MinWidth="130" Text="{Binding SelectedTestResult.Office, Mode=TwoWay}" />
+                    </StackPanel>
+                    <StackPanel
+                        Margin="10,0,0,0"
+                        VerticalAlignment="Center"
+                        Orientation="Horizontal">
+                        <TextBlock
+                            MinWidth="80"
+                            VerticalAlignment="Center"
+                            Text="医生姓名:" />
+                        <TextBox MinWidth="130" Text="{Binding SelectedTestResult.DoctorName, Mode=TwoWay}" />
+                    </StackPanel>
+                    <StackPanel
+                        Margin="10,0,0,0"
+                        VerticalAlignment="Center"
+                        Orientation="Horizontal">
+                        <TextBlock
+                            MinWidth="80"
+                            VerticalAlignment="Center"
+                            Text="检验者:" />
+                        <TextBox MinWidth="130" Text="{Binding SelectedTestResult.Proofer, Mode=TwoWay}" />
+                    </StackPanel>
+                    <StackPanel
+                        Margin="10,0,0,0"
+                        VerticalAlignment="Center"
+                        Orientation="Horizontal">
+                        <TextBlock
+                            MinWidth="80"
+                            VerticalAlignment="Center"
+                            Text="审核者:" />
+                        <TextBox MinWidth="130" Text="{Binding SelectedTestResult.Auditor, Mode=TwoWay}" />
+                    </StackPanel>
                 </StackPanel>
+                <!--  第四行  -->
+                <StackPanel Margin="0,5,0,0" Orientation="Horizontal">
+                    <StackPanel VerticalAlignment="Center" Orientation="Horizontal">
+                        <TextBlock
+                            MinWidth="80"
+                            VerticalAlignment="Center"
+                            Text="医院名字:" />
+                        <TextBox MinWidth="130" Text="{Binding SelectedTestResult.Hospital, Mode=TwoWay}" />
+                    </StackPanel>
+                    <StackPanel
+                        Margin="10,0,0,0"
+                        VerticalAlignment="Center"
+                        Orientation="Horizontal">
+                        <TextBlock
+                            MinWidth="80"
+                            VerticalAlignment="Center"
+                            Text="就诊类型:" />
+                        <TextBox MinWidth="130" Text="{Binding SelectedTestResult.VisitType, Mode=TwoWay}" />
+                    </StackPanel>
+                    <StackPanel
+                        Margin="10,0,0,0"
+                        VerticalAlignment="Center"
+                        Orientation="Horizontal">
+                        <TextBlock
+                            MinWidth="80"
+                            VerticalAlignment="Center"
+                            Text="送检日期:" />
+                        <TextBox MinWidth="130" Text="{Binding SelectedTestResult.SubmissionDate, Mode=TwoWay}" />
+                    </StackPanel>
+                    <StackPanel
+                        Margin="10,0,0,0"
+                        VerticalAlignment="Center"
+                        Orientation="Horizontal">
+                        <TextBlock
+                            MinWidth="80"
+                            VerticalAlignment="Center"
+                            Text="检测日期:" />
+                        <TextBox MinWidth="130" Text="{Binding SelectedTestResult.TestDate, Mode=TwoWay}" />
+                    </StackPanel>
+                </StackPanel>
+                <Grid>
+                    <Grid.ColumnDefinitions>
+                        <ColumnDefinition Width="auto" />
+                        <ColumnDefinition Width="*" />
+                    </Grid.ColumnDefinitions>
+                    <StackPanel Margin="0,10,0,0" Orientation="Horizontal">
+                        <Button
+                            MinWidth="100"
+                            Command="{Binding SaveInfoCommand}"
+                            Content="保存信息"
+                            Style="{StaticResource BtnAccent}" />
+                        <Button
+                            MinWidth="100"
+                            Margin="10,0,0,0"
+                            Command="{Binding PrintReportCommand}"
+                            Content="打印报告" />
+                    </StackPanel>
+                    <StackPanel
+                        Grid.Column="1"
+                        Margin="10,0,20,0"
+                        HorizontalAlignment="Right"
+                        Orientation="Horizontal">
+                        <TextBlock VerticalAlignment="Center" Text="选择打印机：" />
+                        <ComboBox
+                            MinWidth="200"
+                            Margin="20,0,0,0"
+                            ItemsSource="{Binding AvailablePrinters}"
+                            SelectedItem="{Binding SelectedPrinter}" />
+                        <CheckBox
+                            Margin="10,0,0,0"
+                            Content="关闭后最小化到托盘"
+                            IsChecked="{Binding Minimize}" />
+                        <CheckBox
+                            Margin="10,0,0,0"
+                            Content="简单打印模式"
+                            IsChecked="{Binding SampleMode}" />
+                    </StackPanel>
+                </Grid>
+
             </StackPanel>
-            <DataGrid Grid.Row="2" CanUserAddRows="False" CanUserSortColumns="False" 
-                      x:Name="TestResultDataGrid" ItemsSource="{Binding TestResults}"
-                      SelectedItem="{Binding SelectedTestResult}" AutoGenerateColumns="False"
-                      Margin="10" CellStyle="{StaticResource DataGridCellStyle}" RowStyle="{StaticResource DataGridRowStyle}"
-                      IsReadOnly="True">
+            <DataGrid
+                x:Name="TestResultDataGrid"
+                Grid.Row="2"
+                Margin="10"
+                AutoGenerateColumns="False"
+                CanUserAddRows="False"
+                CanUserSortColumns="False"
+                CellStyle="{StaticResource DataGridCellStyle}"
+                IsReadOnly="True"
+                ItemsSource="{Binding TestResults}"
+                RowStyle="{StaticResource DataGridRowStyle}"
+                SelectedItem="{Binding SelectedTestResult}">
                 <DataGrid.Columns>
-                    <DataGridTextColumn Header="样本编号" MinWidth="80" Binding="{Binding SampleNum}" />
-                    <DataGridTextColumn Header="样本类型" MinWidth="80" Binding="{Binding SampleType}" />
-                    <DataGridTextColumn Header="患者姓名" MinWidth="80" Binding="{Binding PatientName}" />
-                    <DataGridTextColumn Header="年龄" MinWidth="50" Binding="{Binding Age}" />
-                    <DataGridTextColumn Header="性别" MinWidth="50" Binding="{Binding Gender}"/>
-                    <DataGridTextColumn Header="检测项目" MinWidth="60" Binding="{Binding Result, Converter={StaticResource ProjectConverter}, ConverterParameter=TestItem}" />
-                    <DataGridTextColumn Header="检测值" MinWidth="60" Binding="{Binding Result, Converter={StaticResource ProjectConverter}, ConverterParameter=TestValue}" />
-                    <DataGridTextColumn Header="检测结果" MinWidth="60" Binding="{Binding Result, Converter={StaticResource ProjectConverter}, ConverterParameter=TestResult}" />
-                    <DataGridTextColumn Header="临界值" MinWidth="100" Binding="{Binding Result, Converter={StaticResource ProjectConverter}, ConverterParameter=Reference}" />
-                    <DataGridTextColumn Header="检测时间" MinWidth="100" Binding="{Binding TestDate}" />
-                    <DataGridTextColumn Header="病历号" MinWidth="80" Binding="{Binding PatientNum}" />
-                    <DataGridTextColumn Header="住院号" MinWidth="80" Binding="{Binding AdmissionNum}" />
-                    <DataGridTextColumn Header="床号" MinWidth="80" Binding="{Binding BedNum}" />
-                    <DataGridTextColumn Header="科室" MinWidth="80" Binding="{Binding Office}" />
-                    <DataGridTextColumn Header="医生姓名" MinWidth="80" Binding="{Binding DoctorName}" />
-                    <DataGridTextColumn Header="检验者" MinWidth="80" Binding="{Binding Proofer}" />
-                    <DataGridTextColumn Header="审核者" MinWidth="80" Binding="{Binding Auditor}" />
-                    <DataGridTextColumn Header="医院名字" MinWidth="80" Binding="{Binding Hospital}" />
-                    <DataGridTextColumn Header="就诊类型" MinWidth="80" Binding="{Binding VisitType}" />
-                    <DataGridTextColumn Header="送检时间" MinWidth="80" Binding="{Binding SubmissionDate}" />
+                    <DataGridTextColumn
+                        MinWidth="80"
+                        Binding="{Binding SampleNum}"
+                        Header="样本编号" />
+                    <DataGridTextColumn
+                        MinWidth="80"
+                        Binding="{Binding SampleType}"
+                        Header="样本类型" />
+                    <DataGridTextColumn
+                        MinWidth="80"
+                        Binding="{Binding PatientName}"
+                        Header="患者姓名" />
+                    <DataGridTextColumn
+                        MinWidth="50"
+                        Binding="{Binding Age}"
+                        Header="年龄" />
+                    <DataGridTextColumn
+                        MinWidth="50"
+                        Binding="{Binding Gender}"
+                        Header="性别" />
+                    <DataGridTextColumn
+                        MinWidth="60"
+                        Binding="{Binding Result, Converter={StaticResource ProjectConverter}, ConverterParameter=TestItem}"
+                        Header="检测项目" />
+                    <DataGridTextColumn
+                        MinWidth="60"
+                        Binding="{Binding Result, Converter={StaticResource ProjectConverter}, ConverterParameter=TestValue}"
+                        Header="检测值" />
+                    <DataGridTextColumn
+                        MinWidth="60"
+                        Binding="{Binding Result, Converter={StaticResource ProjectConverter}, ConverterParameter=TestResult}"
+                        Header="检测结果" />
+                    <DataGridTextColumn
+                        MinWidth="100"
+                        Binding="{Binding Result, Converter={StaticResource ProjectConverter}, ConverterParameter=Reference}"
+                        Header="临界值" />
+                    <DataGridTextColumn
+                        MinWidth="100"
+                        Binding="{Binding TestDate}"
+                        Header="检测时间" />
+                    <DataGridTextColumn
+                        MinWidth="80"
+                        Binding="{Binding PatientNum}"
+                        Header="病历号" />
+                    <DataGridTextColumn
+                        MinWidth="80"
+                        Binding="{Binding AdmissionNum}"
+                        Header="住院号" />
+                    <DataGridTextColumn
+                        MinWidth="80"
+                        Binding="{Binding BedNum}"
+                        Header="床号" />
+                    <DataGridTextColumn
+                        MinWidth="80"
+                        Binding="{Binding Office}"
+                        Header="科室" />
+                    <DataGridTextColumn
+                        MinWidth="80"
+                        Binding="{Binding DoctorName}"
+                        Header="医生姓名" />
+                    <DataGridTextColumn
+                        MinWidth="80"
+                        Binding="{Binding Proofer}"
+                        Header="检验者" />
+                    <DataGridTextColumn
+                        MinWidth="80"
+                        Binding="{Binding Auditor}"
+                        Header="审核者" />
+                    <DataGridTextColumn
+                        MinWidth="80"
+                        Binding="{Binding Hospital}"
+                        Header="医院名字" />
+                    <DataGridTextColumn
+                        MinWidth="80"
+                        Binding="{Binding VisitType}"
+                        Header="就诊类型" />
+                    <DataGridTextColumn
+                        MinWidth="80"
+                        Binding="{Binding SubmissionDate}"
+                        Header="送检时间" />
                 </DataGrid.Columns>
             </DataGrid>
         </Grid>
-               
-        <tb:TaskbarIcon Grid.Row="1" x:Name="taskbarIcon"
-         ToolTipText="上传工具"
-         TrayLeftMouseDown="TaskbarIcon_TrayLeftMouseDown">
+
+        <tb:TaskbarIcon
+            x:Name="taskbarIcon"
+            Grid.Row="1"
+            IconSource="{Binding IcoPath}"
+            ToolTipText="上传工具"
+            TrayLeftMouseDown="TaskbarIcon_TrayLeftMouseDown">
             <tb:TaskbarIcon.ContextMenu>
                 <ContextMenu>
-                    <MenuItem Header="显示窗口" Command="{Binding ShowWindowCommand}"/>
-                    <MenuItem Header="退出" Command="{Binding ExitAppCommand}"/>
+                    <MenuItem Command="{Binding ShowWindowCommand}" Header="显示窗口" />
+                    <MenuItem Command="{Binding ExitAppCommand}" Header="退出" />
                 </ContextMenu>
             </tb:TaskbarIcon.ContextMenu>
         </tb:TaskbarIcon>
     </Grid>
 </mah:MetroWindow>
+

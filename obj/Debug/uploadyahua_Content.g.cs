@@ -8,6 +8,10 @@
 // </auto-generated>
 //------------------------------------------------------------------------------
 
+[assembly: System.Windows.Resources.AssemblyAssociatedContentFileAttribute("dll/spire.license.dll")]
+[assembly: System.Windows.Resources.AssemblyAssociatedContentFileAttribute("dll/spire.pdf.dll")]
+[assembly: System.Windows.Resources.AssemblyAssociatedContentFileAttribute("yahei.consolas.1.12.ttf")]
+[assembly: System.Windows.Resources.AssemblyAssociatedContentFileAttribute("stsong_bold.ttf")]
 [assembly: System.Windows.Resources.AssemblyAssociatedContentFileAttribute("system.data.sqlite.dll")]
 [assembly: System.Windows.Resources.AssemblyAssociatedContentFileAttribute("x64/sqlite.interop.dll")]
 [assembly: System.Windows.Resources.AssemblyAssociatedContentFileAttribute("x86/sqlite.interop.dll")]

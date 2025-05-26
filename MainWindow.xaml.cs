@@ -1,4 +1,5 @@
 ﻿using MahApps.Metro.Controls;
+using PdfSharp.Fonts;
 using System;
 using System.Collections.Generic;
 using System.Linq;
@@ -13,6 +14,7 @@ using System.Windows.Media;
 using System.Windows.Media.Imaging;
 using System.Windows.Navigation;
 using System.Windows.Shapes;
+using uploadyahua.Util;
 using uploadyahua.ViewModel;
 
 namespace uploadyahua
@@ -24,15 +26,22 @@ namespace uploadyahua
     {
         public MainWindow()
         {
+            GlobalFontSettings.FontResolver = new MyFontResolverInfo();
             InitializeComponent();
             DataContext = new MainViewModel(this);
         }
 
         private void Window_Closing(object sender, System.ComponentModel.CancelEventArgs e)
         {
-            // 取消关闭操作，改为隐藏窗口
-            e.Cancel = true;
-            this.Hide();
+            
+            if (GlobalConfig.Instance.Minimize == 1)
+            {
+                e.Cancel = true;
+                this.Hide();
+            }
+            else {
+                Application.Current.Shutdown();
+            }
         }
 
         private void TaskbarIcon_TrayLeftMouseDown(object sender, RoutedEventArgs e)
@@ -40,48 +49,6 @@ namespace uploadyahua
             this.Show();
             this.Activate();
         }
+
     }
-
-    //public class MainWindowViewModel
-    //{
-    //    private readonly MainWindow _mainWindow;
-
-    //    public MainWindowViewModel(MainWindow mainWindow)
-    //    {
-    //        _mainWindow = mainWindow;
-    //    }
-
-    //    public ICommand ShowWindowCommand => new RelayCommand(() =>
-    //    {
-    //        _mainWindow.Show();
-    //        _mainWindow.Activate();
-    //    });
-
-    //    public ICommand ExitAppCommand => new RelayCommand(() =>
-    //    {
-    //        Application.Current.Shutdown();
-    //    });
-    //}
-
-    //public class RelayCommand : ICommand
-    //{
-    //    private readonly System.Action _execute;
-
-    //    public RelayCommand(System.Action execute)
-    //    {
-    //        _execute = execute;
-    //    }
-
-    //    public bool CanExecute(object parameter)
-    //    {
-    //        return true;
-    //    }
-
-    //    public void Execute(object parameter)
-    //    {
-    //        _execute();
-    //    }
-
-    //    public event System.EventHandler CanExecuteChanged;
-    //}
 }

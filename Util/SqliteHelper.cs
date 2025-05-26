@@ -69,5 +69,14 @@ namespace uploadyahua.Util
         {
             return db.Queryable<TestResult>().Includes(tr => tr.Result).OrderByDescending(it => it.Id).ToOffsetPageAsync(page,pageSize);
         }
+        public static int UpdateTestResult(TestResult tr)
+        {
+            //db.UpdateNav(tr).Include(it => it.Result);
+            return db.Updateable(tr).ExecuteCommand();
+        }
+
+        public static TestResult GetTestResultForId(int id){
+            return db.Queryable<TestResult>().Includes(tr => tr.Result).Single(it => it.Id == id);
+        }
     }
 }

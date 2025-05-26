@@ -21,7 +21,7 @@ namespace uploadyahua.Util
         private OnConnectStateListener _listener;
         // 用于存储所有连接的客户端 Socket
         private readonly List<Socket> _connectedClients = new List<Socket>();
-        private bool IsOpen;
+        public bool IsOpen;
         public async Task StartWebSocketServer(string ip, string port, OnConnectStateListener listener)
         {
             _listener = listener;
@@ -51,9 +51,10 @@ namespace uploadyahua.Util
                 IsOpen = false;
             }
         }
-        private void Close() {
+        public void Close() {
             if (_serverSocket!=null)
             {
+                _serverSocket.Dispose();
                 _serverSocket.Close();
                 IsOpen = false;
             }

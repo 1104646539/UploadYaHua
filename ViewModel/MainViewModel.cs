@@ -16,10 +16,12 @@ using System.Net;
 
 using System.Collections.ObjectModel;
 using System.Web.UI;
+using System.Runtime.InteropServices;
+using System.Drawing.Printing;
 
 namespace uploadyahua.ViewModel
 {
-    public partial class MainViewModel : ObservableObject, OnConnectStateListener
+    public partial class MainViewModel : ObservableRecipient, OnConnectStateListener
     {
         [ObservableProperty]
         private string title;
@@ -41,25 +43,117 @@ namespace uploadyahua.ViewModel
         private string stateMsg;
         [ObservableProperty]
         private TestResult selectedTestResult;
+
+        [ObservableProperty]
+        [NotifyPropertyChangedRecipients]
+        private bool minimize;
+        [ObservableProperty]
+        [NotifyPropertyChangedRecipients]
+        private bool sampleMode;
+
+        [ObservableProperty]
+        private string icoPath;
+        [ObservableProperty]
+        private ObservableCollection<string> availableIPs;
+
+        [ObservableProperty]
+        private ObservableCollection<string> availablePrinters;
+        [ObservableProperty]
+        [NotifyPropertyChangedRecipients]
+        private string selectedPrinter;
         public MainViewModel(MainWindow mainWindow)
         {
             _mainWindow = mainWindow;
-            // 获取本机 IP 地址
+            // 初始化可用 IP 列表
+            AvailableIPs = new ObservableCollection<string>();
+            GetAllNetworkIPs();
+            string tempIp = GlobalConfig.Instance.IP;
+            
+            if(AvailableIPs!=null && AvailableIPs.Count > 0) {
+             if(AvailableIPs.Contains(tempIp)){
+                    Ip = tempIp;
+               }else{
+                    Ip = availableIPs[0];
+               }
+            }
+            // 初始化端口为 8866
+            Minimize = GlobalConfig.Instance.Minimize == 1;
+            SampleMode = GlobalConfig.Instance.SampleMode == 1;
+            Port = GlobalConfig.Instance.Port;
+            StateMsg = "待启动";
+            icoPath = "pack://application:,,,/DLL/icon.ico";
+            UpdateBtnText();
+            InitPrinter();
+            InitData();
+        }
+
+        private void InitPrinter()
+        {
+            AvailablePrinters = new ObservableCollection<string>();
+            foreach (string printer in PrinterSettings.InstalledPrinters)
+            {
+                AvailablePrinters.Add(printer);
+            }
+
+            string tempPrinter = GlobalConfig.Instance.Printer;
+            if (AvailablePrinters.Count > 0)
+            {
+                if (AvailablePrinters.Contains(tempPrinter))
+                {
+                    SelectedPrinter = tempPrinter;
+                }
+                else { 
+                    SelectedPrinter = AvailablePrinters[0];
+                }
+            }
+        }
+
+        private void GetAllNetworkIPs()
+        {
             string hostName = Dns.GetHostName();
             IPHostEntry hostEntry = Dns.GetHostEntry(hostName);
             foreach (IPAddress ipAddress in hostEntry.AddressList)
             {
                 if (ipAddress.AddressFamily == System.Net.Sockets.AddressFamily.InterNetwork)
                 {
-                    Ip = ipAddress.ToString();
-                    break;
+                    AvailableIPs.Add(ipAddress.ToString());
                 }
             }
-            // 初始化端口为 8866
-            Port = "8866";
-            StateMsg = "待启动";
-            OpenBtnText = "启动";
-            InitData();
+        }
+
+        protected override void Broadcast<T>(T oldValue, T newValue, string? propertyName)
+        {
+            base.Broadcast(oldValue, newValue, propertyName);
+
+            if (propertyName == nameof(Minimize))
+            {
+                GlobalConfig.Instance.Minimize = Minimize ? 1 : 0;
+            }
+            else if (propertyName == nameof(SampleMode))
+            {
+                GlobalConfig.Instance.SampleMode = SampleMode ? 1 : 0;
+            }
+            else if (propertyName == nameof(SelectedPrinter)) {
+                GlobalConfig.Instance.Printer = SelectedPrinter;
+            }
+        }
+
+        private void UpdateConfig()
+        {
+            GlobalConfig.Instance.Minimize = Minimize ? 1 : 0;
+            GlobalConfig.Instance.SampleMode = SampleMode ? 1 : 0;
+            GlobalConfig.Instance.Printer = SelectedPrinter;
+        }
+
+        private void UpdateBtnText()
+        {
+            if (networkUtil.IsOpen)
+            {
+                OpenBtnText = "断开服务";
+            }
+            else {
+                OpenBtnText = "启动服务";
+            }
         }
 
         private void InitData()
@@ -105,7 +199,18 @@ namespace uploadyahua.ViewModel
         }
         [RelayCommand]
         public void StartService() {
-            networkUtil.StartWebSocketServer(Ip,Port,this);
+            if (string.IsNullOrEmpty(ip) || string.IsNullOrEmpty(port)) { 
+
+            }
+            if (networkUtil.IsOpen)
+            {
+                ClickOpen = false;
+                networkUtil.Close();
+            }
+            else {
+                ClickOpen = true;
+                networkUtil.StartWebSocketServer(Ip,Port,this);
+            }
         }
         [RelayCommand]
         public void ShowWindow()
@@ -119,17 +224,26 @@ namespace uploadyahua.ViewModel
         {
             Application.Current.Shutdown();
         }
-
+        bool ClickOpen = false;
         public void onConnectOpenSuccess()
         {
+            GlobalConfig.Instance.Port = Port;
+            GlobalConfig.Instance.IP = Ip;
             StateMsg = "启动成功";
-            OpenBtnText = "断开";
+            UpdateBtnText();
             Log.Information($"连接成功 onConnectSuccess");
         }
 
         public void onConnectOpenFailed(string error)
         {
-            StateMsg = "启动失败";
+            UpdateBtnText();
+            if (ClickOpen)
+            {
+                StateMsg = "启动失败";
+            }
+            else {
+                StateMsg = "已关闭服务";
+            }
             Log.Information($"连接失败 onConnectFailed={error}");
         }
 
@@ -157,6 +271,9 @@ namespace uploadyahua.ViewModel
             {
                 Log.Information($"插入成功");
                 TestResults.Insert(0,temp);
+                if (GlobalConfig.Instance.SampleMode == 1) { 
+                    PrintTestResult(temp,isAutoPrint:true);
+                }
             }
             else
             {
@@ -173,15 +290,67 @@ namespace uploadyahua.ViewModel
             Log.Information($"新设备连接 onClientAdd={msg}");
         }
         [RelayCommand]
-        public void saveInfo() {
+        public void SaveInfo() {
             if (SelectedTestResult != null) { 
+              int ret = SqliteHelper.UpdateTestResult(SelectedTestResult);
+              if(ret > 0){
+                Log.Information("更新成功");
+                if(ret > 0){
+                    TestResult trTemp = SqliteHelper.GetTestResultForId(SelectedTestResult.Id);
+                    UpdateTestResultForId(trTemp);
+                    SelectedTestResult = trTemp;
+                }
+              }else{
+                Log.Information("更新失败");
+              }
+             }
+        }
 
+        private void UpdateTestResultForId(TestResult trTemp)
+        {
+            if (TestResults == null || TestResults.Count <= 0) return;
+            for (int i = 0; i < TestResults.Count; i++) {
+                if (TestResults[i].Id == trTemp.Id) { 
+                    TestResults[i] = trTemp;
+                }
             }
         }
-        [RelayCommand]
-        public void printReport()
-        {
 
+        [RelayCommand]
+        public void PrintReport()
+        {
+            PrintTestResult(SelectedTestResult);
+        }
+
+        private void PrintTestResult(TestResult tr, bool isAutoPrint = false)
+        {
+            if (tr == null)
+            {
+                return;
+            }
+
+            ReportUtil reportUtil = new ReportUtil();
+            //string path = reportUtil.Print(tr,SelectedPrinter);
+            string path = reportUtil.Create(tr);
+
+            if (string.IsNullOrEmpty(path))
+            {
+            
+                if (!isAutoPrint)
+                {
+                    MessageBox.Show("打印失败 " + path);
+                }
+                Log.Information("打印失败 " + path);
+            }
+            else
+            {
+                if (!isAutoPrint)
+                {
+                    MessageBox.Show("打印成功，保存在 " + path);
+                }
+                Log.Information("打印成功，保存在 " + path);
+            }
+            
         }
     }
 }
