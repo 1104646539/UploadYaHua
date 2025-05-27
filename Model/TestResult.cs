@@ -134,6 +134,13 @@ namespace uploadyahua.Model
         [property: SugarColumn(IsNullable = true)]
         public string testDate;
 
+        /// <summary>
+        /// 备注
+        /// </summary>
+        [ObservableProperty]
+        [property: SugarColumn(IsNullable = true)]
+        public string remark;
+
         [ObservableProperty]
         [property:Navigate(NavigateType.OneToMany, nameof(Result.TestResultId))]
         public List<Result> result;

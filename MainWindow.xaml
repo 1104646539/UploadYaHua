@@ -9,7 +9,7 @@
     xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
     xmlns:tb="http://www.hardcodet.net/taskbar"
     xmlns:vm="clr-namespace:uploadyahua.ViewModel"
-    Title="MainWindow"
+    Title="{Binding Title}"
     Width="1080"
     Height="800"
     d:DataContext="{d:DesignInstance vm:MainViewModel}"
@@ -27,9 +27,9 @@
             <Setter Property="BorderBrush" Value="LightGray" />
             <Setter Property="BorderThickness" Value="0,0,0,1" />
         </Style>
-        <!--<Style BasedOn="{StaticResource MahApps.Styles.Button}" TargetType="Button">
+        <Style BasedOn="{StaticResource MahApps.Styles.Button}" TargetType="Button">
             <Setter Property="FontSize" Value="16" />
-        </Style>-->
+        </Style>
         <Style
             x:Key="BtnAccent"
             BasedOn="{StaticResource MahApps.Styles.Button}"
@@ -240,6 +240,16 @@
                         <TextBox MinWidth="130" Text="{Binding SelectedTestResult.TestDate, Mode=TwoWay}" />
                     </StackPanel>
                 </StackPanel>
+                <!--  第五行  -->
+                <StackPanel Margin="0,5,0,0" Orientation="Horizontal">
+                    <StackPanel VerticalAlignment="Center" Orientation="Horizontal">
+                        <TextBlock
+                            MinWidth="80"
+                            VerticalAlignment="Center"
+                            Text="备注:" />
+                        <TextBox MinWidth="250" Text="{Binding SelectedTestResult.Remark, Mode=TwoWay}" />
+                    </StackPanel>
+                </StackPanel>
                 <Grid>
                     <Grid.ColumnDefinitions>
                         <ColumnDefinition Width="auto" />
@@ -373,6 +383,7 @@
                         MinWidth="80"
                         Binding="{Binding SubmissionDate}"
                         Header="送检时间" />
+
                 </DataGrid.Columns>
             </DataGrid>
         </Grid>

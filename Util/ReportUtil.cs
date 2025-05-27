@@ -208,7 +208,10 @@ namespace uploadyahua.Util
         /// 检测日期
         /// </summary>
         string TestDate;
-
+        /// <summary>
+        /// 备注
+        /// </summary>
+        string Remark;
         /// <summary>
         /// 标题
         /// </summary>
@@ -404,7 +407,7 @@ namespace uploadyahua.Util
             infos[1, 4] = "标本类型：";
             infos[1, 5] = SampleType;
             infos[1, 6] = "备  注：";
-            infos[1, 7] = "";
+            infos[1, 7] = Remark;
 
             infos[2, 0] = "年  龄：";
             infos[2, 1] = Age;
@@ -569,6 +572,7 @@ namespace uploadyahua.Util
             VisitType = tr.VisitType;
             SubmissionDate = tr.SubmissionDate;
             TestDate = tr.TestDate;
+            Remark = tr.Remark;
             projectMaps = tr.Result;
             Title = "检查报告单";
             Hint = "本检验结果仅对该样本负责";

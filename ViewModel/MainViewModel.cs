@@ -85,6 +85,8 @@ namespace uploadyahua.ViewModel
             UpdateBtnText();
             InitPrinter();
             InitData();
+            Title = $"雅华打印报告 {System.Windows.Application.ResourceAssembly.GetName().Version.ToString()}";
+
         }
 
         private void InitPrinter()
