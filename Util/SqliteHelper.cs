@@ -15,7 +15,7 @@ namespace uploadyahua.Util
     {
         //相对路径 - 推荐
         //ORM建库功能说明：建议不要加目录ORM没办法创建文件夹，如果加目录需要手动建文件夹
-        public static string ConnectionString = @"DataSource=Results.fff";
+        public static string ConnectionString = @"DataSource="+ Environment.CurrentDirectory + "\\Results.fff";
         public static int pageSize = 10;
         public static SqlSugarClient db = new SqlSugarClient(new ConnectionConfig()
         {

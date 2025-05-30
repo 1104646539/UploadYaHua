@@ -1,5 +1,6 @@
 using Serilog;
 using System;
+using System.Diagnostics;
 using System.Threading;
 using System.Windows;
 using uploadyahua.Util;
@@ -8,37 +9,93 @@ namespace uploadyahua
 {
     public partial class App : Application
     {
-        private static Mutex _mutex = new Mutex(true, "{8F6F0AC4-B9A1-45FD-A8CF-72F04E6BDE8F}"); // å”¯ä¸€GUID
+        private static Mutex _mutex = new Mutex(false, "{8F6F0AC4-B9A1-45FD-A8CF-72F04E6BDE8F}"); // Î¨Ò»GUID
 
         protected override void OnStartup(StartupEventArgs e)
         {
-            if (_mutex.WaitOne(TimeSpan.Zero, true))
+            // ³¢ÊÔ»ñÈ¡»¥³âÌå£¬Èç¹û»ñÈ¡³É¹¦£¬±íÊ¾µ±Ç°ÊÇµÚÒ»¸öÊµÀı
+            if (_mutex.WaitOne(TimeSpan.FromSeconds(1), false))
             {
-                base.OnStartup(e);
-                Init();
+                try
+                {
+                    base.OnStartup(e);
+                    Init();
+                }
+                catch (Exception ex)
+                {
+                    MessageBox.Show($"Ó¦ÓÃ³ÌĞòÆô¶¯Ê§°Ü£º{ex.Message}", "´íÎó", MessageBoxButton.OK, MessageBoxImage.Error);
+                    Shutdown();
+                }
             }
             else
             {
-                // å·²æœ‰å®ä¾‹è¿è¡Œï¼Œæç¤ºå¹¶é€€å‡º
-                MessageBox.Show("åº”ç”¨ç¨‹åºå·²åœ¨è¿è¡Œï¼");
+                // ÒÑÓĞÊµÀıÔÚÔËĞĞ£¬²éÕÒ¸ÃÊµÀı²¢¼¤»î
+                try
+                {
+                    // ²éÕÒÒÑ¾­ÔËĞĞµÄÊµÀıµÄÖ÷´°¿Ú
+                    Process current = Process.GetCurrentProcess();
+                    foreach (Process process in Process.GetProcessesByName(current.ProcessName))
+                    {
+                        if (process.Id != current.Id)
+                        {
+                            // ·¢ËÍÏûÏ¢¸øÒÑ¾­ÔËĞĞµÄÊµÀı£¬ÈÃËüÏÔÊ¾Ö÷´°¿Ú
+                            NativeMethods.SetForegroundWindow(process.MainWindowHandle);
+                            break;
+                        }
+                    }
+                }
+                catch (Exception)
+                {
+                    // Èç¹ûÎŞ·¨¼¤»îÏÖÓĞÊµÀı£¬Ö»ÊÇÌáÊ¾²¢ÍË³ö
+                    MessageBox.Show("Ó¦ÓÃ³ÌĞòÒÑÔÚÔËĞĞ£¡", "ÌáÊ¾", MessageBoxButton.OK, MessageBoxImage.Information);
+                }
+                
                 Shutdown();
             }
         }
 
         private void Init()
         {
-            SqliteHelper.init();
-            Log.Logger = new LoggerConfiguration()
-           .MinimumLevel.Debug()
-           .WriteTo.Console(outputTemplate: "[{Timestamp:HH:mm:ss.fff} {Level:u3}] {Message:lj}{NewLine}{Exception}")
-           .WriteTo.File("logs/log.txt", rollingInterval: RollingInterval.Day)
-           .CreateLogger();
+            try
+            {
+                SqliteHelper.init();
+                Log.Logger = new LoggerConfiguration()
+                   .MinimumLevel.Debug()
+                   .WriteTo.Console(outputTemplate: "[{Timestamp:HH:mm:ss.fff} {Level:u3}] {Message:lj}{NewLine}{Exception}")
+                   .WriteTo.File("logs/log.txt", rollingInterval: RollingInterval.Day)
+                   .CreateLogger();
+                
+                Log.Information("Ó¦ÓÃ³ÌĞòÆô¶¯³É¹¦");
+            }
+            catch (Exception ex)
+            {
+                // ¼ÇÂ¼³õÊ¼»¯Ê§°ÜĞÅÏ¢
+                Console.WriteLine($"³õÊ¼»¯Ê§°Ü: {ex.Message}");
+                throw;
+            }
         }
 
         protected override void OnExit(ExitEventArgs e)
         {
-            _mutex.ReleaseMutex();
+            try
+            {
+                _mutex.ReleaseMutex();
+                Log.Information("Ó¦ÓÃ³ÌĞòÕı³£ÍË³ö");
+                Log.CloseAndFlush();
+            }
+            catch (Exception)
+            {
+                // ºöÂÔÍË³öÊ±µÄ´íÎó
+            }
+            
             base.OnExit(e);
         }
+    }
+
+    // ÓÃÓÚµ÷ÓÃWindows APIµÄÀà
+    internal static class NativeMethods
+    {
+        [System.Runtime.InteropServices.DllImport("user32.dll")]
+        internal static extern bool SetForegroundWindow(IntPtr hWnd);
     }
 }

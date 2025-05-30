@@ -34,7 +34,7 @@ namespace uploadyahua
         private void Window_Closing(object sender, System.ComponentModel.CancelEventArgs e)
         {
             
-            if (GlobalConfig.Instance.Minimize == 1)
+            if (GlobalConfig.Instance.Minimize)
             {
                 e.Cancel = true;
                 this.Hide();

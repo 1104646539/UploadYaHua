@@ -286,6 +286,10 @@
                             Margin="10,0,0,0"
                             Content="简单打印模式"
                             IsChecked="{Binding SampleMode}" />
+                        <CheckBox
+                            Margin="10,0,0,0"
+                            Content="开机启动"
+                            IsChecked="{Binding AutoStartup}" />
                     </StackPanel>
                 </Grid>
 

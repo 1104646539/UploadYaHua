@@ -18,6 +18,9 @@ using System.Collections.ObjectModel;
 using System.Web.UI;
 using System.Runtime.InteropServices;
 using System.Drawing.Printing;
+using Microsoft.Win32;
+using System.Diagnostics;
+using System.IO;
 
 namespace uploadyahua.ViewModel
 {
@@ -50,6 +53,9 @@ namespace uploadyahua.ViewModel
         [ObservableProperty]
         [NotifyPropertyChangedRecipients]
         private bool sampleMode;
+        [ObservableProperty]
+        [NotifyPropertyChangedRecipients]
+        private bool autoStartup;
 
         [ObservableProperty]
         private string icoPath;
@@ -61,6 +67,7 @@ namespace uploadyahua.ViewModel
         [ObservableProperty]
         [NotifyPropertyChangedRecipients]
         private string selectedPrinter;
+
         public MainViewModel(MainWindow mainWindow)
         {
             _mainWindow = mainWindow;
@@ -77,16 +84,66 @@ namespace uploadyahua.ViewModel
                }
             }
             // 初始化端口为 8866
-            Minimize = GlobalConfig.Instance.Minimize == 1;
-            SampleMode = GlobalConfig.Instance.SampleMode == 1;
+            Minimize = GlobalConfig.Instance.Minimize ;
+            SampleMode = GlobalConfig.Instance.SampleMode;
             Port = GlobalConfig.Instance.Port;
+            AutoStartup = GlobalConfig.Instance.AutoStartup;
             StateMsg = "待启动";
             icoPath = "pack://application:,,,/DLL/icon.ico";
             UpdateBtnText();
             InitPrinter();
             InitData();
+            InitAutoStartupState();
             Title = $"雅华打印报告 {System.Windows.Application.ResourceAssembly.GetName().Version.ToString()}";
+        }
 
+        /// <summary>
+        /// 检查项目是否已经设置为开机自启动
+        /// </summary>
+        private void InitAutoStartupState()
+        {
+            try
+            {
+                // 快捷方式方式检查
+                AutoStartup = IsStartupShortcutExists();
+            }
+            catch (Exception ex)
+            {
+                Log.Error($"检查开机启动状态失败: {ex.Message}");
+                AutoStartup = false;
+            }
+        }
+
+        /// <summary>
+        /// 开启开机自启动
+        /// </summary>
+        private void startAutoStartup()
+        {
+            try
+            {
+                // 快捷方式方式
+                CreateStartupShortcut();
+            }
+            catch (Exception ex)
+            {
+                Log.Error($"设置开机启动失败: {ex.Message}");
+            }
+        }
+
+        /// <summary>
+        /// 取消开机自启动
+        /// </summary>
+        private void stopAutoStartup()
+        {
+            try
+            {
+                // 快捷方式方式
+                DeleteStartupShortcut();
+            }
+            catch (Exception ex)
+            {
+                Log.Error($"取消开机启动失败: {ex.Message}");
+            }
         }
 
         private void InitPrinter()
@@ -129,22 +186,34 @@ namespace uploadyahua.ViewModel
 
             if (propertyName == nameof(Minimize))
             {
-                GlobalConfig.Instance.Minimize = Minimize ? 1 : 0;
+                GlobalConfig.Instance.Minimize = Minimize ;
             }
             else if (propertyName == nameof(SampleMode))
             {
-                GlobalConfig.Instance.SampleMode = SampleMode ? 1 : 0;
+                GlobalConfig.Instance.SampleMode = SampleMode;
             }
             else if (propertyName == nameof(SelectedPrinter)) {
                 GlobalConfig.Instance.Printer = SelectedPrinter;
+            }
+            else if (propertyName == nameof(AutoStartup))
+            {
+                GlobalConfig.Instance.AutoStartup = AutoStartup;
+                if (AutoStartup)
+                {
+                    startAutoStartup();
+                }
+                else { 
+                    stopAutoStartup();
+                }
             }
         }
 
         private void UpdateConfig()
         {
-            GlobalConfig.Instance.Minimize = Minimize ? 1 : 0;
-            GlobalConfig.Instance.SampleMode = SampleMode ? 1 : 0;
+            GlobalConfig.Instance.Minimize = Minimize  ;
+            GlobalConfig.Instance.SampleMode = SampleMode ;
             GlobalConfig.Instance.Printer = SelectedPrinter;
+            GlobalConfig.Instance.AutoStartup = AutoStartup ;
         }
 
         private void UpdateBtnText()
@@ -160,7 +229,49 @@ namespace uploadyahua.ViewModel
 
         private void InitData()
         {
-            LoadData();
+            // 检查是否是开机启动
+            bool isStartupLaunch = IsStartupLaunch();
+            
+            if (isStartupLaunch)
+            {
+                // 如果是开机启动，延时5秒加载数据
+                Log.Information("检测到开机启动，将在5秒后加载数据");
+                Task.Delay(5000).ContinueWith(_ => 
+                {
+                    Application.Current.Dispatcher.Invoke(() => 
+                    {
+                        LoadData();
+                        Log.Information("开机启动延时加载数据完成");
+                    });
+                });
+            }
+            else
+            {
+                // 正常启动，直接加载数据
+                LoadData();
+            }
+        }
+        
+        /// <summary>
+        /// 判断当前是否是开机启动
+        /// </summary>
+        /// <returns>如果是开机启动返回true，否则返回false</returns>
+        private bool IsStartupLaunch()
+        {
+            try
+            {
+                // 检查命令行参数中是否包含 --startup 参数
+                string[] args = Environment.GetCommandLineArgs();
+                bool isStartup = args.Any(arg => arg.Equals("--startup", StringComparison.OrdinalIgnoreCase));
+                
+                Log.Information($"命令行参数: {string.Join(" ", args)}, 是否开机启动: {isStartup}");
+                return isStartup;
+            }
+            catch (Exception ex)
+            {
+                Log.Error($"判断开机启动失败: {ex.Message}");
+                return false;
+            }
         }
 
         private async void LoadData()
@@ -273,7 +384,7 @@ namespace uploadyahua.ViewModel
             {
                 Log.Information($"插入成功");
                 TestResults.Insert(0,temp);
-                if (GlobalConfig.Instance.SampleMode == 1) { 
+                if (GlobalConfig.Instance.SampleMode) { 
                     PrintTestResult(temp,isAutoPrint:true);
                 }
             }
@@ -321,7 +432,8 @@ namespace uploadyahua.ViewModel
         [RelayCommand]
         public void PrintReport()
         {
-            PrintTestResult(SelectedTestResult);
+            InitAutoStartupState();
+            //PrintTestResult(SelectedTestResult);
         }
 
         private void PrintTestResult(TestResult tr, bool isAutoPrint = false)
@@ -353,6 +465,82 @@ namespace uploadyahua.ViewModel
                 Log.Information("打印成功，保存在 " + path);
             }
             
+        }
+
+        /// <summary>
+        /// 创建开机启动快捷方式
+        /// </summary>
+        private void CreateStartupShortcut()
+        {
+            try
+            {
+                // 获取启动文件夹路径
+                string startupFolderPath = Environment.GetFolderPath(Environment.SpecialFolder.Startup);
+                string shortcutPath = Path.Combine(startupFolderPath, $"{SystemGlobal.KeyName}.lnk");
+                string appPath = System.Reflection.Assembly.GetExecutingAssembly().Location;
+                string appDir = Path.GetDirectoryName(appPath);
+
+                // 创建快捷方式
+                Type t = Type.GetTypeFromProgID("WScript.Shell");
+                dynamic shell = Activator.CreateInstance(t);
+                var shortcut = shell.CreateShortcut(shortcutPath);
+                shortcut.TargetPath = appPath;
+                shortcut.Arguments = "--startup";
+                shortcut.WorkingDirectory = appDir;
+                shortcut.Description = $"{SystemGlobal.KeyName} 自动启动";
+                shortcut.IconLocation = appPath + ",0";
+                shortcut.Save();
+
+                Log.Information($"已创建开机启动快捷方式: {shortcutPath}");
+            }
+            catch (Exception ex)
+            {
+                Log.Error($"创建开机启动快捷方式失败: {ex.Message}");
+                throw;
+            }
+        }
+
+        /// <summary>
+        /// 删除开机启动快捷方式
+        /// </summary>
+        private void DeleteStartupShortcut()
+        {
+            try
+            {
+                string startupFolderPath = Environment.GetFolderPath(Environment.SpecialFolder.Startup);
+                string shortcutPath = Path.Combine(startupFolderPath, $"{SystemGlobal.KeyName}.lnk");
+
+                if (File.Exists(shortcutPath))
+                {
+                    File.Delete(shortcutPath);
+                    Log.Information($"已删除开机启动快捷方式: {shortcutPath}");
+                }
+            }
+            catch (Exception ex)
+            {
+                Log.Error($"删除开机启动快捷方式失败: {ex.Message}");
+                throw;
+            }
+        }
+
+        /// <summary>
+        /// 检查开机启动快捷方式是否存在
+        /// </summary>
+        private bool IsStartupShortcutExists()
+        {
+            try
+            {
+                string startupFolderPath = Environment.GetFolderPath(Environment.SpecialFolder.Startup);
+                string shortcutPath = Path.Combine(startupFolderPath, $"{SystemGlobal.KeyName}.lnk");
+                bool exists = File.Exists(shortcutPath);
+                Log.Information($"检查开机启动快捷方式: {shortcutPath}, 存在: {exists}");
+                return exists;
+            }
+            catch (Exception ex)
+            {
+                Log.Error($"检查开机启动快捷方式失败: {ex.Message}");
+                return false;
+            }
         }
     }
 }

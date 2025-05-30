@@ -57,8 +57,8 @@ namespace uploadyahua.Util
         /// <summary>
         /// 点击关闭后是否最小化到托盘
         /// </summary>
-        private int minimize = 0;
-        public int Minimize
+        private bool minimize = false;
+        public bool Minimize
         {
             get => minimize;
             set
@@ -73,8 +73,8 @@ namespace uploadyahua.Util
         /// <summary>
         /// 是否开启简单模式
         /// </summary>
-        private int sampleMode = 0;
-        public int SampleMode
+        private bool sampleMode = false;
+        public bool SampleMode
         {
             get => sampleMode;
             set
@@ -87,7 +87,7 @@ namespace uploadyahua.Util
             }
         }
          /// <summary>
-        /// 是否开启简单模式
+        /// 是否开启自动打印
         /// </summary>
         private string printer = "";
         public string Printer
@@ -102,7 +102,22 @@ namespace uploadyahua.Util
                 }
             }
         }
-       
+        /// <summary>
+        /// 是否开机启动
+        /// </summary>
+        private bool autoStartup = false;
+        public bool AutoStartup
+        {
+            get => autoStartup;
+            set
+            {
+                if (autoStartup != value)
+                {
+                    autoStartup = value;
+                    MarkDirty();
+                }
+            }
+        }
 
         private GlobalConfig() : base()
         {
