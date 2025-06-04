@@ -16,7 +16,7 @@ namespace uploadyahua.Util
         //相对路径 - 推荐
         //ORM建库功能说明：建议不要加目录ORM没办法创建文件夹，如果加目录需要手动建文件夹
         public static string ConnectionString = @"DataSource="+ Environment.CurrentDirectory + "\\Results.fff";
-        public static int pageSize = 10;
+        public static int pageSize = 100; // 默认每页100条
         public static SqlSugarClient db = new SqlSugarClient(new ConnectionConfig()
         {
             DbType = SqlSugar.DbType.Sqlite,
@@ -65,9 +65,20 @@ namespace uploadyahua.Util
         public static Task<List<TestResult>> QueryTestResultsToday() {
             return db.Queryable<TestResult>().Includes(tr => tr.Result).OrderByDescending(it=>it.Id).ToListAsync();
         }
+        public static Task<int> GetTotalCount()
+        {
+            return db.Queryable<TestResult>().CountAsync();
+        }
         public static Task<List<TestResult>> QueryTestResults(int page, int pageSize)
         {
-            return db.Queryable<TestResult>().Includes(tr => tr.Result).OrderByDescending(it => it.Id).ToOffsetPageAsync(page,pageSize);
+            // 确保页码至少为1
+            if (page < 1) page = 1;
+            
+            // 使用SqlSugar的分页方法
+            return db.Queryable<TestResult>()
+                .Includes(tr => tr.Result)
+                .OrderByDescending(it => it.Id)
+                .ToPageListAsync(page, pageSize);
         }
         public static int UpdateTestResult(TestResult tr)
         {

@@ -311,6 +311,7 @@
       <SubType>Designer</SubType>
     </ApplicationDefinition>
     <Compile Include="Converter\ProjectConverter.cs" />
+    <Compile Include="Converter\StringEqualityConverter.cs" />
     <Compile Include="Model\Result.cs" />
     <Compile Include="Model\TestResult.cs" />
     <Compile Include="Util\GlobalConfig.cs" />

@@ -1,3 +1,71 @@
-*.vscode
-/bin
-.vs
+# Visual Studio files
+.vs/
+.vscode/
+*.suo
+*.user
+*.userosscache
+*.sln.docstates
+*.userprefs
+
+# Build results
+[Dd]ebug/
+[Dd]ebugPublic/
+[Rr]elease/
+[Rr]eleases/
+x64/
+x86/
+[Aa][Rr][Mm]/
+[Aa][Rr][Mm]64/
+bld/
+[Bb]in/
+[Oo]bj/
+[Ll]og/
+[Ll]ogs/
+
+# Visual Studio cache files
+# files ending in .cache can be ignored
+*.[Cc]ache
+# but keep track of directories ending in .cache
+!?*.[Cc]ache/
+
+# NuGet Packages
+*.nupkg
+# NuGet Symbol Packages
+*.snupkg
+# The packages folder can be ignored because of Package Restore
+**/[Pp]ackages/*
+# except build/, which is used as an MSBuild target.
+!**/[Pp]ackages/build/
+# Uncomment if necessary however generally it will be regenerated when needed
+#!**/[Pp]ackages/repositories.config
+# NuGet v3's project.json files produces more ignorable files
+*.nuget.props
+*.nuget.targets
+
+# MSBuild Binary and Structured Log
+*.binlog
+
+# Local History (VS Code, Jetbrains)
+.history/
+.ionide/
+
+# JetBrains Rider
+.idea/
+*.sln.iml
+
+# Windows specific
+# Windows thumbnail cache files
+Thumbs.db
+Thumbs.db:encryptable
+ehthumbs.db
+ehthumbs_vista.db
+
+# SQL Server files
+*.mdf
+*.ldf
+*.ndf
+
+# Project specific
+*.fff # SQLite database files
+/PDF/ # PDF output directory
+/logs/ # Log files

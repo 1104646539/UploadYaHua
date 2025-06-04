@@ -47,6 +47,16 @@ namespace uploadyahua.ViewModel
         [ObservableProperty]
         private TestResult selectedTestResult;
 
+        // 分页相关属性
+        [ObservableProperty]
+        private int currentPage = 1;
+        [ObservableProperty]
+        private int totalPages = 1;
+        [ObservableProperty]
+        private int pageSize = 100;
+        [ObservableProperty]
+        private string pageInfo;
+
         [ObservableProperty]
         [NotifyPropertyChangedRecipients]
         private bool minimize;
@@ -276,11 +286,46 @@ namespace uploadyahua.ViewModel
 
         private async void LoadData()
         {
-           List<TestResult> trs = await SqliteHelper.QueryTestResultsToday();
-           TestResults.Clear();
-           for (int i = 0; i < trs.Count; i++) { 
-                TestResults.Add(trs[i]);
-           }
+            // 获取总记录数以计算总页数
+            int totalCount = await SqliteHelper.GetTotalCount();
+            TotalPages = (totalCount + PageSize - 1) / PageSize; // 向上取整计算总页数
+            if (TotalPages == 0) TotalPages = 1; // 确保至少有1页
+            
+            // 加载当前页数据
+            List<TestResult> trs = await SqliteHelper.QueryTestResults(CurrentPage, PageSize);
+            TestResults.Clear();
+            foreach (var tr in trs)
+            {
+                TestResults.Add(tr);
+            }
+            
+            // 更新页码信息
+            UpdatePageInfo();
+        }
+        
+        private void UpdatePageInfo()
+        {
+            PageInfo = $"{CurrentPage}/{TotalPages}";
+        }
+        
+        [RelayCommand]
+        public void NextPage()
+        {
+            if (CurrentPage < TotalPages)
+            {
+                CurrentPage++;
+                LoadData();
+            }
+        }
+        
+        [RelayCommand]
+        public void PreviousPage()
+        {
+            if (CurrentPage > 1)
+            {
+                CurrentPage--;
+                LoadData();
+            }
         }
 
         [RelayCommand]
@@ -383,9 +428,20 @@ namespace uploadyahua.ViewModel
             if (temp != null)
             {
                 Log.Information($"插入成功");
-                TestResults.Insert(0,temp);
-                if (GlobalConfig.Instance.SampleMode) { 
-                    PrintTestResult(temp,isAutoPrint:true);
+                // 如果在第1页，直接添加到列表
+                if (CurrentPage == 1)
+                {
+                    TestResults.Insert(0, temp);
+                    // 如果超过了每页显示数量，移除最后一条
+                    if (TestResults.Count > PageSize)
+                    {
+                        TestResults.RemoveAt(TestResults.Count - 1);
+                    }
+                }
+                
+                if (GlobalConfig.Instance.SampleMode)
+                { 
+                    PrintTestResult(temp, isAutoPrint:true);
                 }
             }
             else
