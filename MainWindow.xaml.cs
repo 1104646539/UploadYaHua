@@ -29,6 +29,10 @@ namespace uploadyahua
             GlobalFontSettings.FontResolver = new MyFontResolverInfo();
             InitializeComponent();
             DataContext = new MainViewModel(this);
+            //开机自启并且是简单模式
+            if (GlobalConfig.Instance.SampleMode && SystemGlobal.Statup) {
+                Hide();
+            }
         }
 
         private void Window_Closing(object sender, System.ComponentModel.CancelEventArgs e)

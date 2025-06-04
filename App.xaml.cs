@@ -1,6 +1,7 @@
 using Serilog;
 using System;
 using System.Diagnostics;
+using System.Linq;
 using System.Threading;
 using System.Windows;
 using uploadyahua.Util;
@@ -13,12 +14,20 @@ namespace uploadyahua
 
         protected override void OnStartup(StartupEventArgs e)
         {
+            
             // 尝试获取互斥体，如果获取成功，表示当前是第一个实例
             if (_mutex.WaitOne(TimeSpan.FromSeconds(1), false))
             {
                 try
                 {
                     base.OnStartup(e);
+                    if (IsStartupLaunch())
+                    {
+                        SystemGlobal.Statup = true;
+                    }
+                    else {
+                        SystemGlobal.Statup = false;
+                    }
                     Init();
                 }
                 catch (Exception ex)
@@ -53,7 +62,27 @@ namespace uploadyahua
                 Shutdown();
             }
         }
+        /// <summary>
+        /// 判断当前是否是开机启动
+        /// </summary>
+        /// <returns>如果是开机启动返回true，否则返回false</returns>
+        private bool IsStartupLaunch()
+        {
+            try
+            {
+                // 检查命令行参数中是否包含 --startup 参数
+                string[] args = Environment.GetCommandLineArgs();
+                bool isStartup = args.Any(arg => arg.Equals("--startup", StringComparison.OrdinalIgnoreCase));
 
+                Log.Information($"命令行参数: {string.Join(" ", args)}, 是否开机启动: {isStartup}");
+                return isStartup;
+            }
+            catch (Exception ex)
+            {
+                Log.Error($"判断开机启动失败: {ex.Message}");
+                return false;
+            }
+        }
         private void Init()
         {
             try

@@ -105,6 +105,11 @@ namespace uploadyahua.ViewModel
             InitData();
             InitAutoStartupState();
             Title = $"雅华打印报告 {System.Windows.Application.ResourceAssembly.GetName().Version.ToString()}";
+
+            if (SampleMode) {
+                StartService();
+                
+            }
         }
 
         /// <summary>
@@ -240,7 +245,7 @@ namespace uploadyahua.ViewModel
         private void InitData()
         {
             // 检查是否是开机启动
-            bool isStartupLaunch = IsStartupLaunch();
+            bool isStartupLaunch = SystemGlobal.Statup;
             
             if (isStartupLaunch)
             {
@@ -262,27 +267,7 @@ namespace uploadyahua.ViewModel
             }
         }
         
-        /// <summary>
-        /// 判断当前是否是开机启动
-        /// </summary>
-        /// <returns>如果是开机启动返回true，否则返回false</returns>
-        private bool IsStartupLaunch()
-        {
-            try
-            {
-                // 检查命令行参数中是否包含 --startup 参数
-                string[] args = Environment.GetCommandLineArgs();
-                bool isStartup = args.Any(arg => arg.Equals("--startup", StringComparison.OrdinalIgnoreCase));
-                
-                Log.Information($"命令行参数: {string.Join(" ", args)}, 是否开机启动: {isStartup}");
-                return isStartup;
-            }
-            catch (Exception ex)
-            {
-                Log.Error($"判断开机启动失败: {ex.Message}");
-                return false;
-            }
-        }
+
 
         private async void LoadData()
         {
@@ -357,8 +342,8 @@ namespace uploadyahua.ViewModel
         }
         [RelayCommand]
         public void StartService() {
-            if (string.IsNullOrEmpty(ip) || string.IsNullOrEmpty(port)) { 
-
+            if (string.IsNullOrEmpty(ip) || string.IsNullOrEmpty(port)) {
+                return;
             }
             if (networkUtil.IsOpen)
             {

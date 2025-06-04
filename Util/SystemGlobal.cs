@@ -11,5 +11,6 @@ namespace uploadyahua.Util
         public const bool IsDebugCode = true;
         public static Encoding Encoding = Encoding.GetEncoding("gbk");
         public static string KeyName = "upload_yahua";
+        public static bool Statup = true;//是否开机自启
     }
 }
