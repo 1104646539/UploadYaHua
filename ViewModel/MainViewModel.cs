@@ -488,8 +488,8 @@ namespace uploadyahua.ViewModel
         [RelayCommand]
         public void PrintReport()
         {
-            InitAutoStartupState();
-            //PrintTestResult(SelectedTestResult);
+            //InitAutoStartupState();
+            PrintTestResult(SelectedTestResult);
         }
 
         private void PrintTestResult(TestResult tr, bool isAutoPrint = false)
@@ -500,8 +500,8 @@ namespace uploadyahua.ViewModel
             }
 
             ReportUtil reportUtil = new ReportUtil();
-            //string path = reportUtil.Print(tr,SelectedPrinter);
-            string path = reportUtil.Create(tr);
+            string path = reportUtil.Print(tr,SelectedPrinter);
+            //string path = reportUtil.Create(tr);
 
             if (string.IsNullOrEmpty(path))
             {
