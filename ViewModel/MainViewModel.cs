@@ -104,7 +104,7 @@ namespace uploadyahua.ViewModel
             InitPrinter();
             InitData();
             InitAutoStartupState();
-            Title = $"四川雅华打印报告 {System.Windows.Application.ResourceAssembly.GetName().Version.ToString()}";
+            Title = $"兰州雅华打印报告 {System.Windows.Application.ResourceAssembly.GetName().Version.ToString()}";
 
             if (SampleMode) {
                 StartService();
