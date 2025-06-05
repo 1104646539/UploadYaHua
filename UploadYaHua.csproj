@@ -7,7 +7,7 @@
     <ProjectGuid>{3D1CFA79-7FF5-44FB-AB3B-7064FC1BA8CA}</ProjectGuid>
     <OutputType>WinExe</OutputType>
     <RootNamespace>uploadyahua</RootNamespace>
-    <AssemblyName>雅化打印报告</AssemblyName>
+    <AssemblyName>四川雅华打印报告</AssemblyName>
     <TargetFrameworkVersion>v4.7.2</TargetFrameworkVersion>
     <FileAlignment>512</FileAlignment>
     <ProjectTypeGuids>{60dc8134-eba5-43b8-bcc9-bb4bc16c2548};{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}</ProjectTypeGuids>

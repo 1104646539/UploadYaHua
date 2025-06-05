@@ -58,7 +58,7 @@ namespace uploadyahua {
             
             #line default
             #line hidden
-            System.Uri resourceLocater = new System.Uri("/雅化打印报告;component/app.xaml", System.UriKind.Relative);
+            System.Uri resourceLocater = new System.Uri("/四川雅华打印报告;component/app.xaml", System.UriKind.Relative);
             
             #line 1 "..\..\App.xaml"
             System.Windows.Application.LoadComponent(this, resourceLocater);

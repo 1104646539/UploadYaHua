@@ -104,7 +104,7 @@ namespace uploadyahua.ViewModel
             InitPrinter();
             InitData();
             InitAutoStartupState();
-            Title = $"雅华打印报告 {System.Windows.Application.ResourceAssembly.GetName().Version.ToString()}";
+            Title = $"四川雅华打印报告 {System.Windows.Application.ResourceAssembly.GetName().Version.ToString()}";
 
             if (SampleMode) {
                 StartService();
@@ -485,8 +485,15 @@ namespace uploadyahua.ViewModel
             }
 
             ReportUtil reportUtil = new ReportUtil();
-            string path = reportUtil.Print(tr,SelectedPrinter);
-            //string path = reportUtil.Create(tr);
+            string path = "";
+            //if (SelectedPrinter.StartsWith("导出为") || SelectedPrinter.StartsWith("Microsoft Print To PDF"))
+            //{
+            //    path = reportUtil.Create(tr);
+            //}
+            //else { 
+                path = reportUtil.Print(tr,SelectedPrinter);
+            //}
+           
 
             if (string.IsNullOrEmpty(path))
             {
@@ -499,10 +506,10 @@ namespace uploadyahua.ViewModel
             }
             else
             {
-                if (!isAutoPrint)
-                {
-                    MessageBox.Show("打印成功，保存在 " + path);
-                }
+                //if (!isAutoPrint)
+                //{
+                //    MessageBox.Show("打印成功，保存在 " + path);
+                //}
                 Log.Information("打印成功，保存在 " + path);
             }
             

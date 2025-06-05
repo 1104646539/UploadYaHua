@@ -241,6 +241,7 @@ namespace uploadyahua.Util
             {
                 Spire.Pdf.PdfDocument doc = new Spire.Pdf.PdfDocument();
                 doc.LoadFromFile(path);
+                doc.PrintSettings.PrinterName = selectedPrinter;
                 doc.Print();
             }
             return path;
